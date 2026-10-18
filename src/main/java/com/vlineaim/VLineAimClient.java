@@ -14,20 +14,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Invisible vertical line = a vertical plane through the crosshair (shiftable by LINE_OFFSET).
- * Only entities within STRIP_HALF_WIDTH degrees of that line are targeted.
- * Only yaw (X axis) is changed; pitch is never touched.
- */
 public class VLineAimClient implements ClientModInitializer {
-    // ---- tweak these ----
     static float LINE_OFFSET = 0f;        // degrees left(-)/right(+) of crosshair
     static float STRIP_HALF_WIDTH = 15f;  // width the line "catches" targets (degrees)
     static float SMOOTHING = 0.35f;       // fraction of remaining angle closed per tick
     static float MAX_STEP = 20f;          // max degrees per tick
     static double RANGE = 6.0;            // blocks
     static boolean PLAYERS_ONLY = false;
-    // ---------------------
 
     private static boolean enabled = false;
     private static KeyMapping toggleKey, leftKey, rightKey;
@@ -51,7 +44,7 @@ public class VLineAimClient implements ClientModInitializer {
 
         while (toggleKey.consumeClick()) {
             enabled = !enabled;
-            me.displayClientMessage(Component.literal("VLine Aim: " + (enabled ? "ON" : "OFF")), true);
+            mc.gui.setOverlayMessage(Component.literal("VLine Aim: " + (enabled ? "ON" : "OFF")), false);
         }
         while (leftKey.consumeClick()) LINE_OFFSET = Mth.clamp(LINE_OFFSET - 5f, -90f, 90f);
         while (rightKey.consumeClick()) LINE_OFFSET = Mth.clamp(LINE_OFFSET + 5f, -90f, 90f);
@@ -79,7 +72,6 @@ public class VLineAimClient implements ClientModInitializer {
         }
 
         if (!found) return;
-        // Yaw only (X axis). Pitch untouched.
         me.setYRot(me.getYRot() + Mth.clamp(bestDelta * SMOOTHING, -MAX_STEP, MAX_STEP));
     }
 }
