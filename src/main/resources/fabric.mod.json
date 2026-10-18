@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "vlineaim",
+  "version": "${version}",
+  "name": "VLine Aim",
+  "description": "Yaw-only aim assist toward an invisible vertical line.",
+  "environment": "client",
+  "entrypoints": { "client": ["com.vlineaim.VLineAimClient"] },
+  "depends": { "fabricloader": ">=0.18.0", "minecraft": "~26.1", "java": ">=25", "fabric-api": "*" }
+}
