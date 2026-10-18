@@ -16,8 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Finds the folder containing settings.gradle, so it works whether the
-      # project is at the repo root or inside a subfolder.
       - name: Locate Gradle project
         run: |
           FILE=$(find . -name settings.gradle -not -path './.git/*' | head -n1)
