@@ -1,0 +1,49 @@
+name: build
+
+on:
+  push:
+    branches: [ main, master ]
+    tags: [ 'v*' ]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Finds the folder containing settings.gradle, so it works whether the
+      # project is at the repo root or inside a subfolder.
+      - name: Locate Gradle project
+        run: |
+          FILE=$(find . -name settings.gradle -not -path './.git/*' | head -n1)
+          if [ -z "$FILE" ]; then echo "No settings.gradle found in repo"; exit 1; fi
+          echo "PROJECT_DIR=$(dirname "$FILE")" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 9.4.0
+
+      - name: Build
+        working-directory: ${{ env.PROJECT_DIR }}
+        run: gradle build --no-daemon
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vlineaim
+          path: ${{ env.PROJECT_DIR }}/build/libs/*.jar
+
+      - name: Release (on v* tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.PROJECT_DIR }}/build/libs/*.jar
